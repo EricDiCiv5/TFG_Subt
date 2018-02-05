@@ -1,105 +1,46 @@
 """ Objectiu: Obtenir les marques de temps de cada subfrase."""
 
 import os 
-import sys 
-
-#Obro fitxers de lectura
-fT = open('002_frases.txt', 'r')
-fL = open('arxiu73_words_002.lab','r')
+import sys
+import datetime 
 
 #Variables marques de temps
 marca_ini = 0.00
 marca_fin = 0.00
 
-for lin1 in fT:
+with open('002_frases.txt', 'r') as fT, open('arxiu73_words_002.lab') as fL:
 
-  while len(lin1):
+  for lin1, lin2 in zip(fT, fL):
 
-    if(len(lin1) > 35):
+    while len(lin1):
 
-      lin1_35 = lin1[0:35] 
+      if(len(lin1) > 35):
 
-      subf = lin1_35[:lin1_35.rindex(' ')] #Variable 'subf' serà la subfrase fins al darrer espai trobat.
+        lin1_35 = lin1[0:35] 
 
-      print(len(subf),"/",len(lin1),":",subf) #Imprimeixo subfrase i la seva longitud.
+        subf = lin1_35[:lin1_35.rindex(' ')] #Variable 'subf' serà la subfrase fins al darrer espai trobat.
 
-      lin1 = lin1[lin1_35.rindex(' ')+1:] #Actualitzo valor resultant de línia.
+        par_begin = subf[0:subf.rindex(' ')] #Agafo la primera paraula de la subfrase. 
 
-      par_begin = subf[0:subf.index(' ')] #Agafo la primera paraula de la subfrase.
+        print(len(subf),"/",len(lin1),":",subf) #Imprimeixo subfrase i la seva longitud.
 
-      par_end = subf[subf.rindex(' ')+1:] #Agafo la darrera paraula de la subfrase.
-
-
-
-      while fL.readline():
-
-        lin2 = fL.readline()
-
-        i_time,f_time,word = lin2.split() #Parteixo línia en tres paràmetres: marca inicial, marca final i la paraula
-
-        if(par_begin == word):
-
-          marca_ini = i_time 
-
-        if(par_end == word):
-
-          marca_fin = f_time 
-
-
-
-    else:
-
-      subf = lin1[0:]
-
-      print(len(subf),"/",len(lin1),":",subf) #Imprimeixo subfrase i la seva longitud.
-
-      lin1 = [] #Actualitzo valor resultant de línia.
-
-
-
-      if(subf.find(' ')):
-
-        par_begin = subf[0:subf.index(' ')] #Agafo la primera paraula de la subfrase.
-
-        par_end = subf[subf.rindex(' ')+1:] #Agafo la darrera paraula de la subfrase.
-
-      while fL.readline():
-
-        lin2 = fL.readline()
-
-        i_time,f_time,word = lin2.split() #Parteixo línia en tres paràmetres: marca inicial, marca final i la paraula
-
-        if(par_begin == word):
-
-          marca_ini = i_time 
-
-        if(par_end == word):
-
-          marca_fin = f_time
-
-
+        lin1 = lin1[lin1_35.rindex(' ')+1:] #Actualitzo valor resultant de línia.
 
       else:
 
-        par = subf[0:]
+        subf = lin1[0:]
 
+        print(len(subf),"/",len(lin1),":",subf) #Imprimeixo subfrase i la seva longitud.. 
+      
+        lin1 = [] #Actualitzo valor resultant de línia.
 
-         
-        while fL.readline():
+        i_time,f_time,word = lin2.split() #Parteixo línia en tres paràmetres: marca inicial, marca final i la paraula
 
-          lin2 = fL.readline()
+        if(word == subf):
 
-          i_time,f_time,word = lin2.split() #Parteixo línia en tres paràmetres: marca inicial, marca final i la paraula
+          marca_ini = i_time
 
-          if(par_begin == word):
-
-            marca_ini = i_time 
-
-          if(par_end == word):
-
-            marca_fin = f_time 
-
-
+          print(marca_ini) 
 
 fT.close()
 fL.close()
