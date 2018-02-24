@@ -2,7 +2,6 @@
 
 import os 
 import sys
-import datetime 
 
 #Obro fitxer de lectura
 fLab = open('arxiu73_words_002.lab', 'r')
@@ -45,8 +44,6 @@ for lin in fLab:
       else:
 
         ResList.append(AuxList)
-
-        #print(ResList)
 
         AuxList = Linia[:]
 
