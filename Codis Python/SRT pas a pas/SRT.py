@@ -15,6 +15,7 @@ def seg_a_temps(string):
 
 #Obro fitxer de lectura
 fLab = open('arxiu73_words_002.lab', 'r')
+fSRT = open('arxiu73_002.srt', 'w')
 
 ResList = [] #Llista resultant
 
@@ -62,11 +63,12 @@ for lin in fLab:
 
 while num_subt < len(ResList):
 
-  print(str(num_subt+1))
-  print(seg_a_temps(ResList[num_subt][0])," --> ",seg_a_temps(ResList[num_subt][1]))
-  print(' '.join(ResList[num_subt][2].split()))
-  print('')
+  fSRT.write(str(num_subt+1)+'\n')
+  fSRT.write(seg_a_temps(ResList[num_subt][0])+" --> "+seg_a_temps(ResList[num_subt][1])+'\n')
+  fSRT.write(' '.join(ResList[num_subt][2].split())+'\n')
+  fSRT.write('\n')
 
   num_subt += 1
 
 fLab.close()
+fSRT.close()
