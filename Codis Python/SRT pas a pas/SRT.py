@@ -2,6 +2,16 @@
 
 import os 
 import sys
+import time
+
+def seg_a_temps(string):
+
+  segons = float(string)
+  minuts, seg = divmod(segons, 60)
+  hores, minuts = divmod(minuts, 60)
+  return "%02d:%02d:%02d" % (hores, minuts, seg)
+
+  
 
 #Obro fitxer de lectura
 fLab = open('arxiu73_words_002.lab', 'r')
@@ -50,18 +60,11 @@ for lin in fLab:
         AuxList = Linia[:] #Copio contingut llista línia en Auxiliar
 
 
-
 while num_subt < len(ResList):
 
-  MeuString = ResList[num_subt][2].split()
-
-  ' '.join(MeuString)
-
-  ResList[num_subt][2] = MeuString
-
   print(str(num_subt+1))
-  print(ResList[num_subt][0]," --> ",ResList[num_subt][1])
-  print(ResList[num_subt][2])
+  print(seg_a_temps(ResList[num_subt][0])," --> ",seg_a_temps(ResList[num_subt][1]))
+  print(' '.join(ResList[num_subt][2].split()))
   print('')
 
   num_subt += 1
