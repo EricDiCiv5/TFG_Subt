@@ -80,15 +80,8 @@ Subf = [] #Llista on es fa el processat de la subfrase
 
 for word in fTXT.read().split():
 
-    if(len(Subf) != 0):
+  if(len(Subf[:]) + len(word) <= 35): #Si longitud subfrase més paraules és inferior a 35...
 
-      Subf = []
-
-    else: #Si llista Auxiliar és buida...
-
-      if(len(Subf[:] + word) <= 35): #Si longitud subfrase més paraules és inferior a 35...
-
-        Subf.append(word) #Juntar els strings en llista auxiliar
-
-print(Fin_List)
-fTXT.close()
+    Subf.append(word) #Juntar els strings en llista auxiliar
+    
+print(' '.join(Subf)+'\n')
