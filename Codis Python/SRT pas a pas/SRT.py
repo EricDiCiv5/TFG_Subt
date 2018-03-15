@@ -74,14 +74,24 @@ fLab.close()
 fSRT.close()
 
 #Obro fitxer de lectura
-fTXT = open("arxiu73_002.txt", 'r')
+with open("002_frases.txt", 'r') as fTXT:
+    guio = fTXT.readlines()
 
-Subf = [] #Llista on es fa el processat de la subfrase
+Subf = []
 
-for word in fTXT.read().split():
+for lines in guio:
 
-  if(len(Subf[:]) + len(word) <= 35): #Si longitud subfrase més paraules és inferior a 35...
+    if len(lines) > 35:
 
-    Subf.append(word) #Juntar els strings en llista auxiliar
-    
-print(' '.join(Subf)+'\n')
+      subf = lines[0:35]
+      subf = subf[0:subf.rindex(' ')]
+      Subf.append(subf)
+      lines = lines[subf.rindex(' ')+1:]
+       
+    else:
+      
+      subf = lines
+      Subf.append(subf)
+      lines = []
+
+print(Subf)
