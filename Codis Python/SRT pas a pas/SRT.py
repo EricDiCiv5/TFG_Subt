@@ -2,16 +2,16 @@
 
 import os 
 import sys
-import time
+from functools import reduce
+import glob
 
 def seg_a_temps(string):
 
   segons = float(string)
-  minuts, seg = divmod(segons, 60)
-  hores, minuts = divmod(minuts, 60)
-  return "%02d:%02d:%02d" % (hores, minuts, seg)
 
-  
+  return "%02d:%02d:%02d.%03d" % \
+      reduce((lambda ll,b : divmod(ll[0],b) + ll[1:]),
+          [(segons*1000,),1000,60,60])
 
 #Obro fitxer de lectura
 fLab = open('arxiu73_words_002.lab', 'r')
