@@ -80,6 +80,8 @@ with open("002_frases.txt", 'r') as fTXT:
 Subf = []
 
 for lines in guio:
+  
+  while len(lines):
 
     if len(lines) > 35:
 
