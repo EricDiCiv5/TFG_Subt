@@ -74,26 +74,26 @@ fLab.close()
 fSRT.close()
 
 #Obro fitxer de lectura
-with open("002_frases.txt", 'r') as fTXT:
-    guio = fTXT.readlines()
+fTXT = open("002_frases.txt", 'r')
 
 Subf = []
 
-for lines in guio:
-  
+for lines in fTXT:
+
   while len(lines):
 
-    if len(lines) > 35:
-
-      subf = lines[0:35]
-      subf = subf[0:subf.rindex(' ')]
+    if (len(lines) > 35):
+      subf_35 = lines[0:35]
+      subf = subf_35[0:subf_35.rindex(' ')]
       Subf.append(subf)
-      lines = lines[subf.rindex(' ')+1:]
+      lines = lines[subf_35.rindex(' ')+1:]
        
     else:
       
-      subf = lines
-      Subf.append(subf)
+      subf_35 = lines[0:]
+      Subf.append(subf_35)
       lines = []
 
 print(Subf)
+
+fTXT.close()
