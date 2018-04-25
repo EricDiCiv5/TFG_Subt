@@ -1,4 +1,4 @@
-""" Objectiu: Generar fitxer '.SRT' partint del fitxers de paraules '.lab'."""
+""" Objectiu: Generar fitxer '.SRT' partint del fitxers de paraules '.txt'."""
 
 #Importacions de llibreries i/o funcions
 import os 
@@ -20,50 +20,17 @@ Conj_fLabs = glob.glob('./*.lab')
 Conj_fTXTs = glob.glob('./*.txt')
 
 
-for nom_fitx in Conj_fLabs:
+for (nom_fitx, nom_fich) in zip(Conj_fLabs,Conj_fTXTs):
   fLab = open(nom_fitx, 'r')
-  fSRT = open(nom_fitx.replace('lab', 'srt'), 'w') 
+  fTXT = open(nom_fich, 'r')
+  fSRT = open(nom_fitx.replace('txt', 'srt'), 'w') 
 
-  
   #Variables
   Subf = []
 
-  ResList = [] #Llista resultant
+  Labs = []*3
 
-  AuxList = []*3 #Llista on es fa el processat de la subfrase
-
-  Linia = [] #Llista on s'agafa cada linia del fitxer
-
-  num_subt = 0 
-
-  pos = 0 #Posició llista .txt (Subf)
-
-  #Fitxers .lab en llista
-  for lin in fLab:
-
-    Linia = lin.split(' ') #Partir línia en els 3 paràmetres que la formen
-
-    if not (Linia[2].isupper() and not Linia[2].islower()): #si la paraula comença per lletra majúscula...
-
-      if(len(AuxList) == 0): #Si llista Auxiliar és buida...
-
-        AuxList = Linia[:] #Copiar contingut llista Línia en Auxiliar
-
-      else:
-
-        if(len(AuxList[2] + Linia[2]) <= 35): #Si longitud subfrase més paraula es inferior a 35...
-
-          AuxList[2] = AuxList[2] + Linia[2] #Juntar els strings en llista Auxiliar
-          AuxList[1] = Linia[1] #Agafar marca de temps final     
-
-        else:
-
-          ResList.append(AuxList) 
-          AuxList = Linia[:] 
-
-
-  ResList.append(AuxList)
-
+  num_subt = 0
 
   #Fitxers .txt en llista
   for line in fTXT:
@@ -80,38 +47,51 @@ for nom_fitx in Conj_fLabs:
           Subf.append(subf)
           line = line[subf_35.rindex(' ')+1:] #Actualitzar valor línia
           
-   
         else:
       
           subf_35 = line[0:]
-          subf = subf_35[:subf_35.rindex('\n')] #Agafar subfrase fins el punt i part
+          subf = subf_35[:subf_35.rindex('\n')] #Agafar subfrase fins el punt i part.
           Subf.append(subf)
           line = []
           
- 
+    #Eliminar strings buits
+    Subf = list(filter(None, Subf))
+
+  #Fitxers .lab en llista
+  for lin in fLab:
+
+    lin = lin.replace("\n","")
+
+    if not (lin.split(' ')[2].isupper()) and not (lin.split(' ')[2].islower()) or (lin.split(' ')[2].islower()):
+      Labs.append(lin.split(' ')) #Partir línia en els 3 paràmetres que la formen
+
+
   #Eliminar strings buits
-  Subf = list(filter(None, Subf))
-
-  
-  #Comparar llista '.lab' amb '.txt'
-  for num_subt in ResList:
-
-    while(len(Subf):
-
-      if (Subf[pos] == ResList[num_subt][2]): 
-
-        ResList[num_subt][2] = Subf[pos]  
+  Labs = list(filter(None, Labs))
 
 
-  #Emmagatzematge del format pels fitxers .SRT
-  while num_subt < len(ResList):
+  #Marques temps en .txt
+  for sentence in Subf:
 
-    fSRT.write(str(num_subt+1)+'\n')
-    fSRT.write(seg_a_temps(ResList[num_subt][0])+" --> "+seg_a_temps(ResList[num_subt][1])+'\n')
-    fSRT.write(' '.join(ResList[num_subt][2].split())+'\n')
-    fSRT.write('\n')
+    while len(Labs):
 
-    num_subt += 1
+      if(Labs.split(' ')[2] == Subf[sentence][0]) or (Labs.split(' ')[2] == Subf[sentence][0]+Subf[sentence][0].punctuation):
+    
+        ini_t = seg_a_temps(Labs.split(' ')[0])
+
+      if(Labs.split(' ')[2] == Subf[sentence][-1]) or (Labs.split(' ')[2] == Subf[sentence][-1]+Subf[sentence][-1].punctuation):
+    
+        fin_t = seg_a_temps(Labs.split(' ')[1]) 
+
+    #Format fitxer .SRT
+    while num_subt < len(Subf):
+
+      fSRT.write(str(num_subt+1)+'\n')
+      fSRT.write(ini_t+" --> "+fin_t+'\n')
+      fSRT.write(Subf[num_subt]+'\n')
+      fSRT.write('\n')
+
+      num_subt += 1
 
 fLab.close()
 fTXT.close()
