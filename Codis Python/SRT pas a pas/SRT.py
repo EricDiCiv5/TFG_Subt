@@ -4,6 +4,8 @@
 import os 
 import sys
 from functools import reduce
+from collections import deque
+import re
 import glob
 
 #Funcions
@@ -15,83 +17,97 @@ def seg_a_temps(string):
       reduce((lambda ll,b : divmod(ll[0],b) + ll[1:]),
           [(segons*1000,),1000,60,60])
 
-#Fitxers lectura
+"""#Fitxers lectura
 Conj_fLabs = glob.glob('./*.lab')
 Conj_fTXTs = glob.glob('./*.txt')
-
-
 for (nom_fitx, nom_fich) in zip(Conj_fLabs,Conj_fTXTs):
   fLab = open(nom_fitx, 'r')
   fTXT = open(nom_fich, 'r')
-  fSRT = open(nom_fitx.replace('txt', 'srt'), 'w') 
+  fSRT = open(nom_fich.replace('txt', 'srt'), 'w')"""
 
-  #Variables
-  Subf = []
+fTXT = open('002_frases.txt', 'r')
+fLab = open('arxiu73_words_002.lab', 'r')
+fSRT = open('arxiu73_002.srt', 'w')
 
-  Labs = []*3
+#Variables
+Subf = []
 
-  num_subt = 0
+Marques = []
 
-  #Fitxers .txt en llista
-  for line in fTXT:
+Labs = []*3
 
-    #si frase comença per lletra majúscula o minúscula...
-    if not (line.split(' ')[0].isupper()) and not (line.split(' ')[0].islower()) or (line.split(' ')[0].islower()):
+pos = 0
 
-      while len(line):
+num_subt = 0
 
-        if (len(line) > 35):
+ini_t = ""
 
-          subf_35 = line[0:35] #Agafar 35 caràcters
-          subf = subf_35[:subf_35.rindex(' ')] #Agafar subfrase fins l'últim espai dels 35
-          Subf.append(subf)
-          line = line[subf_35.rindex(' ')+1:] #Actualitzar valor línia
-          
-        else:
+fin_t = ""
+
+#Fitxers .txt en llista
+for line in fTXT:
+
+  #si frase comença per lletra majúscula o minúscula...
+  if not (line.split(' ')[0].isupper()) and not (line.split(' ')[0].islower()) or (line.split(' ')[0].islower()):
+
+    while len(line):
+
+      if (len(line) > 35):
+            
+        subf_35 = line[0:35] #Agafar 35 caràcters
+        subf = subf_35[:subf_35.rindex(' ')] #Agafar subfrase fins l'últim espai dels 35
+        Subf.append(subf)
+        line = line[subf_35.rindex(' ')+1:] #Actualitzar valor línia
+
+      else:
       
-          subf_35 = line[0:]
-          subf = subf_35[:subf_35.rindex('\n')] #Agafar subfrase fins el punt i part.
-          Subf.append(subf)
-          line = []
-          
-    #Eliminar strings buits
-    Subf = list(filter(None, Subf))
+        subf_35 = line[0:]
+        subf = subf_35[:subf_35.rindex('\n')] #Agafar subfrase fins el punt i part
+        Subf.append(subf)
+        line = []
+        
+#Eliminar strings buits
+Subf = list(filter(None, Subf))
 
-  #Fitxers .lab en llista
-  for lin in fLab:
+#Fitxers .lab en llista
+for lin in fLab:
 
-    lin = lin.replace("\n","")
+  lin = lin.replace("\n","")
 
-    if not (lin.split(' ')[2].isupper()) and not (lin.split(' ')[2].islower()) or (lin.split(' ')[2].islower()):
-      Labs.append(lin.split(' ')) #Partir línia en els 3 paràmetres que la formen
-
-
-  #Eliminar strings buits
-  Labs = list(filter(None, Labs))
+  if not (lin.split(' ')[2].isupper()) and not (lin.split(' ')[2].islower()) or (lin.split(' ')[2].islower()):
+    Labs.append(lin.split(' ')) #Partir línia en els 3 paràmetres que la formen
 
 
-  #Marques temps en .txt
-  for sentence in Subf:
+#Eliminar strings buits
+Labs = list(filter(None, Labs))
 
-    while len(Labs):
 
-      if(Labs.split(' ')[2] == Subf[sentence][0]) or (Labs.split(' ')[2] == Subf[sentence][0]+Subf[sentence][0].punctuation):
+#Marques temps en .txt
+for phrase in Subf:
+
+  while pos < len(Labs):
+
+    if(Labs[pos][2] == re.findall(r"[\S]+", phrase.split(' ')[-1])) or (Labs[pos][2] == phrase.split(' ')[-1]):
     
-        ini_t = seg_a_temps(Labs.split(' ')[0])
+      ini_t = str(seg_a_temps(Labs[pos][1]))
+      Marques.append(ini_t)  
 
-      if(Labs.split(' ')[2] == Subf[sentence][-1]) or (Labs.split(' ')[2] == Subf[sentence][-1]+Subf[sentence][-1].punctuation):
-    
-        fin_t = seg_a_temps(Labs.split(' ')[1]) 
+    if(Labs[pos][2] == re.findall(r"[\S]+", phrase.split(' ')[0])) or (Labs[pos][2] == phrase.split(' ')[0]):
 
-    #Format fitxer .SRT
-    while num_subt < len(Subf):
+      fin_t = str(seg_a_temps(Labs[pos][0]))
+      Marques.append(fin_t)
 
-      fSRT.write(str(num_subt+1)+'\n')
-      fSRT.write(ini_t+" --> "+fin_t+'\n')
-      fSRT.write(Subf[num_subt]+'\n')
-      fSRT.write('\n')
+    pos += 1
+ 
+#Format fitxer .SRT
+while num_subt < len(Subf):
 
-      num_subt += 1
+  fSRT.write(str(num_subt+1)+'\n')
+  fSRT.write(ini_t+" --> "+fin_t+'\n')
+  fSRT.write(Subf[num_subt]+'\n')
+  fSRT.write('\n')
+
+  num_subt += 1
 
 fLab.close()
 fTXT.close()
