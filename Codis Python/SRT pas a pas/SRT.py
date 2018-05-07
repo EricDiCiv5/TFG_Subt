@@ -7,6 +7,8 @@ from functools import reduce
 from collections import deque
 import re
 import glob
+import string
+
 
 #Funcions
 def seg_a_temps(string):
@@ -16,8 +18,8 @@ def seg_a_temps(string):
   return "%02d:%02d:%02d.%03d" % \
       reduce((lambda ll,b : divmod(ll[0],b) + ll[1:]),
           [(segons*1000,),1000,60,60])
-
-"""#Fitxers lectura
+"""
+#Fitxers lectura
 Conj_fLabs = glob.glob('./*.lab')
 Conj_fTXTs = glob.glob('./*.txt')
 for (nom_fitx, nom_fich) in zip(Conj_fLabs,Conj_fTXTs):
@@ -30,19 +32,14 @@ fLab = open('arxiu73_words_002.lab', 'r')
 fSRT = open('arxiu73_002.srt', 'w')
 
 #Variables
-Subf = []
 
-Marques = []
+Subf = [] #Llista fitxers text
 
-Labs = []*3
+AuxList = []*3 #Llista on es fa el processat de la subfrase
 
-pos = 0
+Labs = [] #Llista fitxers labels (etiquetes)
 
-num_subt = 0
-
-ini_t = ""
-
-fin_t = ""
+pos = 0 #comptador posició
 
 #Fitxers .txt en llista
 for line in fTXT:
@@ -54,7 +51,7 @@ for line in fTXT:
 
       if (len(line) > 35):
             
-        subf_35 = line[0:35] #Agafar 35 caràcters
+        subf_35 = line[0:35]
         subf = subf_35[:subf_35.rindex(' ')] #Agafar subfrase fins l'últim espai dels 35
         Subf.append(subf)
         line = line[subf_35.rindex(' ')+1:] #Actualitzar valor línia
@@ -64,51 +61,60 @@ for line in fTXT:
         subf_35 = line[0:]
         subf = subf_35[:subf_35.rindex('\n')] #Agafar subfrase fins el punt i part
         Subf.append(subf)
-        line = []
+        line = [] #Actualitzar valor línia
         
 #Eliminar strings buits
 Subf = list(filter(None, Subf))
 
+
+#Llegir .lab en llista partint línies
+lines = fLab.read().splitlines()
+
 #Fitxers .lab en llista
-for lin in fLab:
+for phrase1 in Subf:
 
-  lin = lin.replace("\n","")
+  #Indicador processat frase del fitxer '.lab'
+  phrase2 = False
+  
+  if not (lines[pos].split(' ')[2].isupper()) and not (lines[pos].split(' ')[2].islower()) or (lines[pos].split(' ')[2].islower()):
 
-  if not (lin.split(' ')[2].isupper()) and not (lin.split(' ')[2].islower()) or (lin.split(' ')[2].islower()):
-    Labs.append(lin.split(' ')) #Partir línia en els 3 paràmetres que la formen
-
-
-#Eliminar strings buits
-Labs = list(filter(None, Labs))
-
-
-#Marques temps en .txt
-for phrase in Subf:
-
-  while pos < len(Labs):
-
-    if(Labs[pos][2] == re.findall(r"[\S]+", phrase.split(' ')[-1])) or (Labs[pos][2] == phrase.split(' ')[-1]):
+    #Mentre frase no s'hagi fet o no estigui en la última línia...
+    while not (pos == len(lines)-1):
     
-      ini_t = str(seg_a_temps(Labs[pos][1]))
-      Marques.append(ini_t)  
+      if(len(AuxList) == 0): #Si llista Auxiliar és buida...
+        
+        #Si primera paraula LABs igual a primera paraula TXTs...
+        if(lines[pos].split(' ')[2] == phrase1.split(' ')[0]):
 
-    if(Labs[pos][2] == re.findall(r"[\S]+", phrase.split(' ')[0])) or (Labs[pos][2] == phrase.split(' ')[0]):
+          #Copiar contingut llista Línia en Auxiliar
+          AuxList = list(lines[pos])
+          print(AuxList)
+          #Actualitzar marca de temps final.
+          AuxList[0] = lines[pos].split(' ')[0] 
 
-      fin_t = str(seg_a_temps(Labs[pos][0]))
-      Marques.append(fin_t)
+          pos += 1
+        
+      else:
+  
+        #Si longitud subfrase més paraula es inferior a longitud frase del TXT...
+        if(len(AuxList[2] + lines[pos].split(' ')[2]) <= len(phrase1)): 
 
-    pos += 1
- 
-#Format fitxer .SRT
-while num_subt < len(Subf):
+          AuxList[2] = AuxList[2] + lines[pos].split(' ')[2] #Concatenació en AuxList.
 
-  fSRT.write(str(num_subt+1)+'\n')
-  fSRT.write(ini_t+" --> "+fin_t+'\n')
-  fSRT.write(Subf[num_subt]+'\n')
-  fSRT.write('\n')
+          #Si darrera paraula LABs igual a darrera paraula TXTs...
+          if(AuxList[2][-1] == phrase1.split(' ')[-1]):	
+            
+            AuxList[1] = lines[pos].split(' ')[1] #Agafar marca de temps final.
+        
+          pos += 1
 
-  num_subt += 1
+        else:
+          res = seg_a_temps(AuxList[0])+" "+seg_a_temps(AuxList[1])+" "+phrase1
+          Labs.append(res)
+          AuxList = []
 
-fLab.close()
+print(Labs)
+
 fTXT.close()
+fLab.close()
 fSRT.close()
